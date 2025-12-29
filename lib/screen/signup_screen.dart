@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:intl/intl.dart';
 import 'login_screen.dart';
-import 'congratulation_screen.dart';
+import 'done_screen.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -19,7 +19,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   // Controllers for form fields
   final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController(
+    text: "asriyaaa8@gmail.com",
+  );
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
@@ -72,104 +74,33 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
               const SizedBox(height: 20),
 
-              // Illustration
+              // Illustration (Handshake)
               Expanded(
-                flex: 2,
+                flex: 1,
                 child: Container(
                   padding: const EdgeInsets.all(20),
                   child: Center(
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        // Background circle
-                        Container(
-                          width: 220,
-                          height: 220,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.white.withOpacity(0.2),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.white.withOpacity(0.2),
-                                spreadRadius: 5,
-                                blurRadius: 15,
-                                offset: const Offset(0, 10),
-                              ),
-                            ],
+                    child: Container(
+                      width: 150,
+                      height: 150,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(15),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 15,
+                            offset: const Offset(0, 5),
                           ),
+                        ],
+                      ),
+                      child: Center(
+                        child: Icon(
+                          Icons.handyman, // Using a handshake-like icon
+                          size: 80,
+                          color: Colors.blue[600],
                         ),
-                        // Illustration of woman on scooter
-                        Container(
-                          width: 180,
-                          height: 180,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.transparent,
-                          ),
-                          child: Stack(
-                            children: [
-                              // Scooter
-                              Positioned(
-                                bottom: 0,
-                                child: Container(
-                                  width: 120,
-                                  height: 80,
-                                  decoration: BoxDecoration(
-                                    color: Colors.red[400],
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      "Scooter",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              // Woman figure (simplified)
-                              Positioned(
-                                bottom: 60,
-                                child: Container(
-                                  width: 60,
-                                  height: 80,
-                                  decoration: BoxDecoration(
-                                    color: Colors.teal[300], // Teal hair
-                                    borderRadius: BorderRadius.circular(30),
-                                  ),
-                                  child: Column(
-                                    children: [
-                                      // Head
-                                      Container(
-                                        width: 30,
-                                        height: 30,
-                                        decoration: BoxDecoration(
-                                          color: Colors.pink[200],
-                                          shape: BoxShape.circle,
-                                        ),
-                                      ),
-                                      // Body (jacket)
-                                      Container(
-                                        width: 40,
-                                        height: 40,
-                                        decoration: BoxDecoration(
-                                          color: Colors.red[500], // Red jacket
-                                          borderRadius: BorderRadius.circular(
-                                            5,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
@@ -541,11 +472,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
       ),
     );
 
-    // Navigate to congratulation screen after successful sign up
+    // Navigate to done screen after successful sign up
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => CongratulationScreen(name: _nameController.text),
+        builder: (context) => DoneScreen(
+          name: _nameController.text,
+          email: _emailController.text,
+          phone: _phoneController.text,
+        ),
       ),
     );
   }
