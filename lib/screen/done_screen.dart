@@ -13,7 +13,7 @@ class DoneScreen extends StatefulWidget {
     super.key,
     required this.name,
     required this.email,
-    required this.phone,
+    this.phone = "", // Make phone optional with default value
   });
 
   @override
@@ -151,7 +151,8 @@ class _DoneScreenState extends State<DoneScreen> {
                               const SizedBox(height: 10),
                               _buildDataItem("Email", widget.email),
                               const SizedBox(height: 10),
-                              _buildDataItem("Phone", widget.phone),
+                              if (widget.phone.isNotEmpty)
+                                _buildDataItem("Phone", widget.phone),
                             ],
                           ),
                         ),

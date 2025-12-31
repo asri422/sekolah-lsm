@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:intl/intl.dart';
 import 'login_screen.dart';
 import 'done_screen.dart';
+import 'profile_screen.dart';
+import '../auth_service.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -438,7 +440,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
-  void _handleSignUp() {
+  void _handleSignUp() async {
     // Simple validation
     if (_nameController.text.isEmpty ||
         _emailController.text.isEmpty ||
@@ -464,6 +466,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
       return;
     }
 
+    // Save user data to AuthService
+    AuthService.saveUserData(
+      name: _nameController.text,
+      email: _emailController.text,
+      phone: _phoneController.text,
+      birthDate: "", // Default empty, can be added if needed
+      birthPlace: "", // Default empty, can be added if needed
+      status: "Student", // Default status
+    );
+
     // Show success message
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
@@ -472,15 +484,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
       ),
     );
 
-    // Navigate to done screen after successful sign up
+    // Navigate to profile screen after successful sign up
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => DoneScreen(
-          name: _nameController.text,
-          email: _emailController.text,
-          phone: _phoneController.text,
-        ),
+        builder: (context) => ProfileScreen(userName: _nameController.text),
       ),
     );
   }

@@ -4,6 +4,8 @@ import 'academic_screen.dart'; // Import academic screen
 import 'home_screen.dart'; // Import home screen
 import 'notifikasi_screen.dart'; // Import notifications screen
 import 'quiz_screen.dart'; // Import quiz screen
+import 'profile_screen.dart'; // Import profile screen
+import '../user_data.dart'; // Import user data
 
 class TeacherDetailScreen extends StatefulWidget {
   final String teacherName;
@@ -35,6 +37,7 @@ class _TeacherDetailScreenState extends State<TeacherDetailScreen>
     with TickerProviderStateMixin {
   late TabController _tabController;
   int _selectedTab = 3; // Computer tab is active by default
+  bool _isEnrolled = false;
 
   @override
   void initState() {
@@ -46,6 +49,13 @@ class _TeacherDetailScreenState extends State<TeacherDetailScreen>
         _selectedTab = _tabController.index;
       });
     });
+
+    _checkEnrollmentStatus();
+  }
+
+  Future<void> _checkEnrollmentStatus() async {
+    _isEnrolled = await UserData.isTeacherEnrolled(widget.teacherName);
+    setState(() {});
   }
 
   @override
@@ -54,8 +64,8 @@ class _TeacherDetailScreenState extends State<TeacherDetailScreen>
     super.dispose();
   }
 
-  // Function to handle enrollment and navigate to Academic screen
-  void _enrollNow() {
+  // Function to handle enrollment and update statistics
+  void _enrollNow() async {
     // Send enrollment data to email
     EmailService.sendEnrollmentEmail(
       teacherName: widget.teacherName,
@@ -68,6 +78,9 @@ class _TeacherDetailScreenState extends State<TeacherDetailScreen>
       widget.onEnroll!(widget.teacherName);
     }
 
+    // Enroll in the teacher/course which will increment the count
+    await UserData.enrollInTeacher(widget.teacherName);
+
     // Show confirmation message
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -78,26 +91,9 @@ class _TeacherDetailScreenState extends State<TeacherDetailScreen>
       ),
     );
 
-    // Navigate to Academic screen after a short delay
-    Future.delayed(Duration(milliseconds: 500), () {
-      // Add current teacher to the list of enrolled teachers
-      List<String> updatedTeachers = List<String>.from(
-        widget.enrolledTeachers ?? [],
-      );
-      if (!updatedTeachers.contains(widget.teacherName)) {
-        updatedTeachers.add(widget.teacherName);
-      }
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => AcademicScreen(
-            userName: widget.userName,
-            enrolledTeachers: updatedTeachers,
-          ),
-        ),
-      );
-    });
+    // Update profile statistics after enrollment
+    List<String> enrolledTeachers = await UserData.getEnrolledTeachers();
+    await UserData.setEnrolledCoursesCount(enrolledTeachers.length);
   }
 
   @override
@@ -289,56 +285,85 @@ class _TeacherDetailScreenState extends State<TeacherDetailScreen>
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          // Enroll Now button (moved to be above Continue to Learn)
-          Container(
-            width: screenWidth * 0.8,
-            height: 50,
-            margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            child: ElevatedButton(
-              onPressed: _enrollNow,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2196F3),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
+          if (!_isEnrolled) ...[
+            // Enroll Now button (moved to be above Continue to Learn)
+            Container(
+              width: screenWidth * 0.8,
+              height: 50,
+              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              child: ElevatedButton(
+                onPressed: _enrollNow,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF2196F3),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 15),
                 ),
-                padding: const EdgeInsets.symmetric(vertical: 15),
-              ),
-              child: const Text(
-                "Enroll Now",
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
-          // Continue to Learn button
-          Container(
-            width: screenWidth * 0.8,
-            height: 50,
-            margin: const EdgeInsets.symmetric(horizontal: 20),
-            child: ElevatedButton(
-              onPressed: () {
-                // Handle continue to learn action
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF2196F3),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                padding: const EdgeInsets.symmetric(vertical: 15),
-              ),
-              child: const Text(
-                "Continue to Learn!",
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                child: const Text(
+                  "Enroll Now",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),
-          ),
+          ] else ...[
+            // Already Enrolled button
+            Container(
+              width: screenWidth * 0.8,
+              height: 50,
+              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              child: ElevatedButton(
+                onPressed: null, // Disabled since already enrolled
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.grey,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                ),
+                child: const Text(
+                  "Already Enrolled",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          ],
+          // Continue to Learn button (only show if enrolled)
+          if (_isEnrolled)
+            Container(
+              width: screenWidth * 0.8,
+              height: 50,
+              margin: const EdgeInsets.symmetric(horizontal: 20),
+              child: ElevatedButton(
+                onPressed: () {
+                  // Refresh the current screen to show updated enrollment status
+                  setState(() {});
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF2196F3),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                ),
+                child: const Text(
+                  "Continue to Learn!",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,

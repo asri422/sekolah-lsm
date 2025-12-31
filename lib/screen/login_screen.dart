@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:intl/intl.dart';
 import 'signup_screen.dart';
+import 'home_screen.dart'; // Import home screen
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'registration_screen.dart'; // Import registration screen
+import '../auth_service.dart'; // Import auth service
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -52,47 +55,46 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
-          color: Color(0xFF87CEEB), // Sky Blue background
+          color: Color(0xFF0095FF), // Full Blue background
         ),
         child: SafeArea(
-          child: Column(
-            children: [
-              // Status Bar
-              _buildStatusBar(),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                // Status Bar
+                _buildStatusBar(),
 
-              // Error message bar
-              if (_showError)
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  color: Colors.red,
-                  child: Row(
-                    children: [
-                      const Icon(Icons.error, color: Colors.white, size: 18),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          _errorMessage,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
+                // Error message bar
+                if (_showError)
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    color: Colors.red,
+                    child: Row(
+                      children: [
+                        const Icon(Icons.error, color: Colors.white, size: 18),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            _errorMessage,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
 
-              SizedBox(height: _showError ? 20 : 40),
+                SizedBox(height: _showError ? 20 : 40),
 
-              // Illustration (Handshake)
-              Expanded(
-                flex: 2,
-                child: Container(
+                // Illustration (Handshake)
+                Container(
                   padding: _showError
                       ? EdgeInsets.only(top: 20, left: 20, right: 20)
                       : EdgeInsets.all(20),
@@ -121,14 +123,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                 ),
-              ),
 
-              const SizedBox(height: 30),
+                const SizedBox(height: 30),
 
-              // Form Fields
-              Expanded(
-                flex: 2,
-                child: Container(
+                // Form Fields
+                Container(
                   padding: const EdgeInsets.symmetric(horizontal: 30),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -212,14 +211,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     ],
                   ),
                 ),
-              ),
 
-              const SizedBox(height: 20),
+                const SizedBox(height: 20),
 
-              // Login Button
-              Expanded(
-                flex: 0,
-                child: Container(
+                // Login Button
+                Container(
                   padding: const EdgeInsets.symmetric(horizontal: 30),
                   width: double.infinity,
                   height: 50,
@@ -246,14 +242,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                 ),
-              ),
 
-              const SizedBox(height: 25),
+                const SizedBox(height: 25),
 
-              // Social Media Login
-              Expanded(
-                flex: 0,
-                child: Container(
+                // Social Media Login
+                Container(
                   padding: const EdgeInsets.symmetric(horizontal: 30),
                   child: Column(
                     children: [
@@ -351,35 +344,43 @@ class _LoginScreenState extends State<LoginScreen> {
                     ],
                   ),
                 ),
-              ),
 
-              const SizedBox(height: 20),
+                const SizedBox(height: 20),
 
-              // Sign Up Link
-              Expanded(
-                flex: 0,
-                child: TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const SignUpScreen(),
+                // Sign Up Link
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(horizontal: 30),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const SignUpScreen(),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue[600],
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 15),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
                       ),
-                    );
-                  },
-                  child: Text(
-                    "Don't Have Account? Signup here !",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                      decoration: TextDecoration.underline,
+                    ),
+                    child: Text(
+                      "Don't Have Account? Signup here !",
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
-              ),
 
-              const SizedBox(height: 20),
-            ],
+                const SizedBox(height: 20),
+              ],
+            ),
           ),
         ),
       ),
@@ -529,7 +530,11 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  void _showSocialLoginSuccess(String provider, String name, String email) {
+  void _showSocialLoginSuccess(
+    String provider,
+    String name,
+    String email,
+  ) async {
     // Show success message
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -538,32 +543,35 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
 
-    // In a real app, you would navigate to the home screen
-    // For now, let's just show a dialog
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("$provider Login Successful"),
-          content: Text(
-            "Welcome back, $name!\n\n"
-            "You've successfully logged in with $provider.\n"
-            "Email: $email",
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text("OK"),
-            ),
-          ],
-        );
-      },
-    );
+    // Check if user has profile data, if not navigate to registration
+    Map<String, String>? userData = await AuthService.getUserData();
+    if (userData == null || userData.isEmpty) {
+      // Save basic user data from social login
+      await AuthService.saveUserData(
+        name: name,
+        email: email,
+        phone: "",
+        birthDate: "",
+        birthPlace: "",
+        status: "User",
+      );
+
+      // Navigate to registration screen if no profile data exists
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const RegistrationScreen()),
+      );
+    } else {
+      // Navigate to home screen if profile data exists
+      String userName = userData['name'] ?? name;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => HomeScreen(userName: userName)),
+      );
+    }
   }
 
-  void _showSuccessMessage() {
+  void _showSuccessMessage() async {
     // Show success message
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
@@ -572,24 +580,21 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
 
-    // In a real app, you would navigate to the home screen
-    // For now, let's just show a dialog
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Login Successful"),
-          content: const Text("Welcome back! You've successfully logged in."),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text("OK"),
-            ),
-          ],
-        );
-      },
-    );
+    // Check if user has profile data, if not navigate to registration
+    Map<String, String>? userData = await AuthService.getUserData();
+    if (userData == null || userData.isEmpty) {
+      // Navigate to registration screen if no profile data exists
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const RegistrationScreen()),
+      );
+    } else {
+      // Navigate to home screen if profile data exists
+      String userName = userData['name'] ?? 'User';
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => HomeScreen(userName: userName)),
+      );
+    }
   }
 }

@@ -1091,7 +1091,7 @@ class _HomeScreenState extends State<HomeScreen> {
       onTap: _onItemTapped,
       items: const [
         BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
-        BottomNavigationBarItem(icon: Icon(Icons.school), label: 'Akademik'),
+        BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Kelas'),
         BottomNavigationBarItem(icon: Icon(Icons.lightbulb), label: 'Ideas'),
         BottomNavigationBarItem(
           icon: Icon(Icons.notifications),

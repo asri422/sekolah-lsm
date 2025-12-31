@@ -3,7 +3,8 @@ import 'home_screen.dart'; // Import home screen
 import 'academic_screen.dart'; // Import academic screen
 import 'quiz_screen.dart'; // Import quiz screen
 import 'notifikasi_screen.dart'; // Import notifications screen
-import 'dashboard_screen.dart'; // Import dashboard screen
+import '../user_data.dart'; // Import user data
+import '../auth_service.dart'; // Import auth service
 
 class ProfileScreen extends StatefulWidget {
   final String userName;
@@ -15,13 +16,44 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  // Sample user data
-  final String _userFullName = "Asri Barokatul Jannah";
-  final String _userStatus = "MAHASISWA";
-  final String _userBirthDate = "15 Juli 1999";
-  final String _userBirthPlace = "Jakarta";
-  final int _userClasses = 3;
-  final int _userCompletedTasks = 12;
+  // Initialize with default values, will be updated from auth service
+  String _userFullName = "User";
+  String _userEmail = "";
+  String _userPhone = "";
+  String _userStatus = "";
+  String _userBirthDate = "";
+  String _userBirthPlace = "";
+  List<String> _enrolledClasses = [];
+
+  int _enrolledCoursesCount = 0;
+  int _completedTasksCount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfileData();
+  }
+
+  Future<void> _loadProfileData() async {
+    // Load user profile data
+    Map<String, String>? userData = await AuthService.getUserData();
+    if (userData != null) {
+      setState(() {
+        _userFullName = userData['name'] ?? "User";
+        _userEmail = userData['email'] ?? "";
+        _userPhone = userData['phone'] ?? "";
+        _userStatus = userData['status'] ?? "";
+        _userBirthDate = userData['birth_date'] ?? "";
+        _userBirthPlace = userData['birth_place'] ?? "";
+      });
+    }
+
+    // Load user statistics
+    _enrolledCoursesCount = await UserData.getEnrolledCoursesCount();
+    _completedTasksCount = await UserData.getCompletedTasksCount();
+    _enrolledClasses = await UserData.getEnrolledTeachers();
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -136,6 +168,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               children: [
                                 _buildInfoRow("Nama Lengkap", _userFullName),
                                 const Divider(height: 20),
+                                _buildInfoRow("Email", _userEmail),
+                                const Divider(height: 20),
+                                _buildInfoRow("Nomor Telepon", _userPhone),
+                                const Divider(height: 20),
                                 _buildInfoRow("Tanggal Lahir", _userBirthDate),
                                 const Divider(height: 20),
                                 _buildInfoRow("Tempat Lahir", _userBirthPlace),
@@ -168,7 +204,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   child: Column(
                                     children: [
                                       Text(
-                                        _userClasses.toString(),
+                                        _enrolledCoursesCount.toString(),
                                         style: const TextStyle(
                                           fontSize: 24,
                                           fontWeight: FontWeight.bold,
@@ -197,7 +233,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   child: Column(
                                     children: [
                                       Text(
-                                        _userCompletedTasks.toString(),
+                                        _completedTasksCount.toString(),
                                         style: const TextStyle(
                                           fontSize: 24,
                                           fontWeight: FontWeight.bold,
@@ -217,6 +253,66 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                             ],
                           ),
+                          const SizedBox(height: 15),
+
+                          // Enrolled classes section
+                          if (_enrolledClasses.isNotEmpty)
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  "Kelas yang Diikuti",
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                Container(
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[100],
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: ListView.builder(
+                                    shrinkWrap: true,
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    itemCount: _enrolledClasses.length,
+                                    itemBuilder: (context, index) {
+                                      return Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 5,
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            Container(
+                                              width: 8,
+                                              height: 8,
+                                              decoration: BoxDecoration(
+                                                color: Colors.blue,
+                                                shape: BoxShape.circle,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 10),
+                                            Expanded(
+                                              child: Text(
+                                                _enrolledClasses[index],
+                                                style: const TextStyle(
+                                                  fontSize: 14,
+                                                  color: Colors.black87,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
                           const SizedBox(height: 30),
 
                           // Logout button
@@ -342,7 +438,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       currentIndex: 4, // Profile tab selected
       items: const [
         BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
-        BottomNavigationBarItem(icon: Icon(Icons.school), label: 'Akademik'),
+        BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Kelas'),
         BottomNavigationBarItem(icon: Icon(Icons.lightbulb), label: 'Ideas'),
         BottomNavigationBarItem(
           icon: Icon(Icons.notifications),

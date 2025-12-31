@@ -4,6 +4,7 @@ import 'academic_screen.dart'; // Import academic screen
 import 'quiz_screen.dart'; // Import quiz screen
 import 'notifikasi_screen.dart'; // Import notifications screen
 import 'profile_screen.dart'; // Import profile screen
+import '../user_data.dart'; // Import user data
 
 class QuizResultsScreen extends StatefulWidget {
   final String userName;
@@ -193,13 +194,17 @@ class _QuizResultsScreenState extends State<QuizResultsScreen> {
                             const SizedBox(width: 15),
                             Expanded(
                               child: ElevatedButton(
-                                onPressed: () {
-                                  // Navigate to home screen
+                                onPressed: () async {
+                                  // Increment completed tasks count
+                                  await UserData.incrementCompletedTasks();
+
+                                  // Navigate to profile screen to show updated statistics
                                   Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) =>
-                                          HomeScreen(userName: widget.userName),
+                                      builder: (context) => ProfileScreen(
+                                        userName: widget.userName,
+                                      ),
                                     ),
                                   );
                                 },

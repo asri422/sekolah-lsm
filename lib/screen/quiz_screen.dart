@@ -522,7 +522,7 @@ class _QuizScreenState extends State<QuizScreen> with TickerProviderStateMixin {
       currentIndex: 2, // Quiz tab selected
       items: const [
         BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
-        BottomNavigationBarItem(icon: Icon(Icons.school), label: 'Akademik'),
+        BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Kelas'),
         BottomNavigationBarItem(icon: Icon(Icons.lightbulb), label: 'Ideas'),
         BottomNavigationBarItem(
           icon: Icon(Icons.notifications),
