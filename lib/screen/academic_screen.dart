@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'home_screen.dart'; // Import home screen
+import 'notifikasi_screen.dart'; // Import notifications screen
+import 'quiz_screen.dart'; // Import quiz screen
+import 'profile_screen.dart'; // Import profile screen
+import 'dashboard_screen.dart'; // Import dashboard screen
 
 class AcademicScreen extends StatefulWidget {
   final String userName;
@@ -53,13 +58,35 @@ class _AcademicScreenState extends State<AcademicScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      "Akademik",
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
+                    Row(
+                      children: [
+                        // Back button
+                        IconButton(
+                          icon: const Icon(
+                            Icons.arrow_back,
+                            color: Colors.white,
+                          ),
+                          onPressed: () {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    HomeScreen(userName: widget.userName),
+                              ),
+                            );
+                          },
+                        ),
+                        const SizedBox(width: 10),
+                        // Title
+                        const Text(
+                          "Akademik",
+                          style: TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 10),
                     Text(
@@ -223,7 +250,7 @@ class _AcademicScreenState extends State<AcademicScreen> {
       items: const [
         BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
         BottomNavigationBarItem(icon: Icon(Icons.school), label: 'Akademik'),
-        BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Tugas'),
+        BottomNavigationBarItem(icon: Icon(Icons.lightbulb), label: 'Ideas'),
         BottomNavigationBarItem(
           icon: Icon(Icons.notifications),
           label: 'Notifikasi',
@@ -232,6 +259,43 @@ class _AcademicScreenState extends State<AcademicScreen> {
       ],
       onTap: (index) {
         // Handle navigation
+        switch (index) {
+          case 0: // Home
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => HomeScreen(userName: widget.userName),
+              ),
+            );
+            break;
+          case 1: // Academic - stay on current screen
+            break;
+          case 2: // Ideas
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => QuizScreen(userName: widget.userName),
+              ),
+            );
+            break;
+          case 3: // Notifications
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    NotifikasiScreen(userName: widget.userName),
+              ),
+            );
+            break;
+          case 4: // Profile
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ProfileScreen(userName: widget.userName),
+              ),
+            );
+            break;
+        }
       },
     );
   }

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'email_service.dart'; // Import email service
 import 'academic_screen.dart'; // Import academic screen
+import 'home_screen.dart'; // Import home screen
+import 'notifikasi_screen.dart'; // Import notifications screen
+import 'quiz_screen.dart'; // Import quiz screen
 
 class TeacherDetailScreen extends StatefulWidget {
   final String teacherName;
@@ -445,9 +448,9 @@ class _TeacherDetailScreenState extends State<TeacherDetailScreen>
       unselectedItemColor: Colors.white70,
       currentIndex: 1, // Course tab selected by default
       items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+        BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
         BottomNavigationBarItem(icon: Icon(Icons.school), label: 'Akademik'),
-        BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Tugas'),
+        BottomNavigationBarItem(icon: Icon(Icons.lightbulb), label: 'Ideas'),
         BottomNavigationBarItem(
           icon: Icon(Icons.notifications),
           label: 'Notifikasi',
@@ -456,10 +459,43 @@ class _TeacherDetailScreenState extends State<TeacherDetailScreen>
       ],
       onTap: (index) {
         // Handle navigation
-        if (index == 1) {
-          // Academic tab
-          Navigator.popUntil(context, ModalRoute.withName('/'));
-          Navigator.pushReplacementNamed(context, '/academic');
+        switch (index) {
+          case 0: // Home
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => HomeScreen(userName: widget.userName),
+              ),
+            );
+            break;
+          case 1: // Academic
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AcademicScreen(userName: widget.userName),
+              ),
+            );
+            break;
+          case 2: // Ideas
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => QuizScreen(userName: widget.userName),
+              ),
+            );
+            break;
+          case 3: // Notifications
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    NotifikasiScreen(userName: widget.userName),
+              ),
+            );
+            break;
+          case 4: // Profile
+            // Could implement profile screen later
+            break;
         }
       },
     );

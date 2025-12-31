@@ -4,6 +4,10 @@ import 'package:intl/intl.dart';
 import 'teacher_detail_screen.dart'; // Import teacher detail screen
 import 'email_service.dart'; // Import email service
 import 'academic_screen.dart'; // Import academic screen
+import 'notifikasi_screen.dart'; // Import notifications screen
+import 'quiz_screen.dart'; // Import quiz screen
+import 'dashboard_screen.dart'; // Import dashboard screen
+import 'profile_screen.dart'; // Import profile screen
 
 class HomeScreen extends StatefulWidget {
   final String userName;
@@ -25,6 +29,10 @@ class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
   bool _isVisible = false;
   bool _isSidebarOpen = false;
+  String _searchQuery = '';
+  bool _showSearchResults = false;
+  List<Map<String, dynamic>> _searchResults = [];
+  List<Map<String, dynamic>> _allSubjects = []; // Store all subjects data
 
   @override
   void initState() {
@@ -38,6 +46,9 @@ class _HomeScreenState extends State<HomeScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _startBlinkingEffect();
     });
+
+    // Initialize subjects data
+    _initializeSubjectsData();
   }
 
   void _startBlinkingEffect() {
@@ -66,6 +77,267 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  void _initializeSubjectsData() {
+    _allSubjects = [
+      {
+        'name': 'Algoritma',
+        'description':
+            'Ilmu yang mempelajari tentang langkah-langkah sistematis untuk menyelesaikan masalah.',
+        'example':
+            'Contoh: Algoritma pengurutan data seperti Bubble Sort, Quick Sort, dan Merge Sort.',
+        'teacher': 'Bapak Hamzah',
+        'teacherSubject': 'Linear Algebra',
+        'teacherDescription': 'Kode Pemrograman & Algoritma',
+        'likes': 1581,
+      },
+      {
+        'name': 'Data Mining',
+        'description':
+            'Proses mengekstrak informasi atau pola penting dari sejumlah besar data.',
+        'example':
+            'Contoh: Menganalisis data pembelian pelanggan untuk menemukan pola pembelian.',
+        'teacher': 'Bapak Rofiuddin',
+        'teacherSubject': 'HCI Lecturer',
+        'teacherDescription': 'Desain UI/UX',
+        'likes': 1581,
+      },
+      {
+        'name': 'Sistem Pendukung Keputusan (SPK)',
+        'description':
+            'Sistem informasi yang dirancang untuk membantu pengambilan keputusan dengan menggunakan model dan data.',
+        'example':
+            'Contoh: Sistem yang membantu manajer dalam memilih supplier terbaik berdasarkan beberapa kriteria.',
+        'teacher': 'Bapak Rofiuddin',
+        'teacherSubject': 'HCI Lecturer',
+        'teacherDescription': 'Desain UI/UX',
+        'likes': 1581,
+      },
+      {
+        'name': 'Jaringan Komputer',
+        'description':
+            'Sistem yang terdiri dari komputer-komputer yang saling terhubung untuk berbagi informasi dan sumber daya.',
+        'example':
+            'Contoh: Jaringan lokal (LAN), jaringan luas (WAN), dan internet.',
+        'teacher': 'Bapak Hamzah',
+        'teacherSubject': 'Linear Algebra',
+        'teacherDescription': 'Kode Pemrograman & Algoritma',
+        'likes': 1581,
+      },
+    ];
+  }
+
+  void _performSearch(String query) {
+    setState(() {
+      _searchQuery = query;
+      if (query.isEmpty) {
+        _showSearchResults = false;
+      } else {
+        _searchResults = _allSubjects
+            .where(
+              (subject) =>
+                  subject['name'].toLowerCase().contains(query.toLowerCase()) ||
+                  subject['description'].toLowerCase().contains(
+                    query.toLowerCase(),
+                  ) ||
+                  subject['example'].toLowerCase().contains(
+                    query.toLowerCase(),
+                  ) ||
+                  subject['teacher'].toLowerCase().contains(
+                    query.toLowerCase(),
+                  ),
+            )
+            .toList();
+        _showSearchResults = true;
+      }
+    });
+  }
+
+  void _filterByCategory(String category) {
+    setState(() {
+      _searchQuery = category;
+      _searchResults = _allSubjects
+          .where(
+            (subject) =>
+                subject['name'].toLowerCase().contains(
+                  category.toLowerCase(),
+                ) ||
+                subject['teacher'].toLowerCase().contains(
+                  category.toLowerCase(),
+                ),
+          )
+          .toList();
+      _showSearchResults = true;
+    });
+  }
+
+  Widget _buildSearchResults() {
+    if (_searchResults.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.search_off, size: 60, color: Colors.white70),
+            const SizedBox(height: 10),
+            const Text(
+              "Materi tidak ditemukan",
+              style: TextStyle(fontSize: 16, color: Colors.white70),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return ListView.builder(
+      shrinkWrap: true,
+      physics:
+          const NeverScrollableScrollPhysics(), // Disable scrolling for inner list
+      itemCount: _searchResults.length,
+      itemBuilder: (context, index) {
+        var subject = _searchResults[index];
+        return _buildSubjectCard(subject);
+      },
+    );
+  }
+
+  Widget _buildSubjectCard(Map<String, dynamic> subject) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 15),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(15),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Subject Name
+            Text(
+              subject['name'],
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.blue,
+              ),
+            ),
+            const SizedBox(height: 8),
+            // Description
+            Text(
+              subject['description'],
+              style: const TextStyle(fontSize: 14, color: Colors.grey),
+            ),
+            const SizedBox(height: 8),
+            // Example
+            Text(
+              subject['example'],
+              style: const TextStyle(
+                fontSize: 13,
+                fontStyle: FontStyle.italic,
+                color: Colors.black54,
+              ),
+            ),
+            const SizedBox(height: 10),
+            // Teacher Info
+            Row(
+              children: [
+                // Teacher Avatar
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.blue[100],
+                  ),
+                  child: const Icon(Icons.person, color: Colors.blue, size: 20),
+                ),
+                const SizedBox(width: 10),
+                // Teacher Details
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        subject['teacher'],
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black,
+                        ),
+                      ),
+                      Text(
+                        subject['teacherSubject'],
+                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                      ),
+                    ],
+                  ),
+                ),
+                // Like and Bookmark Icons
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.thumb_up,
+                          color: Colors.orange[600],
+                          size: 16,
+                        ),
+                        const SizedBox(width: 3),
+                        Text(
+                          subject['likes'].toString(),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Icon(
+                      Icons.bookmark_border,
+                      color: Colors.grey[600],
+                      size: 16,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            // Enroll Button
+            Align(
+              alignment: Alignment.centerRight,
+              child: ElevatedButton(
+                onPressed: () {
+                  // Navigate to academic screen with enrollment
+                  _navigateToTeacherDetail(
+                    subject['teacher'],
+                    subject['teacher'],
+                    subject['name'],
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+                child: const Text("Enroll"),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _updateTime() {
     if (mounted) {
       setState(() {
@@ -84,6 +356,48 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _selectedIndex = index;
     });
+
+    // Navigate based on the selected index
+    switch (index) {
+      case 0: // Home - stay on current screen
+        break;
+      case 1: // Academic - navigate to Academic screen
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AcademicScreen(
+              userName: widget.userName,
+              enrolledTeachers:
+                  [], // You can pass actual enrolled teachers here
+            ),
+          ),
+        );
+        break;
+      case 2: // Ideas
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => QuizScreen(userName: widget.userName),
+          ),
+        );
+        break;
+      case 3: // Notifications - navigate to Notifications screen
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => NotifikasiScreen(userName: widget.userName),
+          ),
+        );
+        break;
+      case 4: // Profile - navigate to profile screen
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ProfileScreen(userName: widget.userName),
+          ),
+        );
+        break;
+    }
   }
 
   void _toggleSidebar() {
@@ -126,7 +440,7 @@ class _HomeScreenState extends State<HomeScreen> {
       subject = "HCI Lecturer";
     } else if (teacherName.contains("Hamzah")) {
       rating = "4.7";
-      teacherTitle = "Hamzah S.Pd M.Kom";
+      teacherTitle = "Hamzah S.kom M.Kom";
       subject = "Linear Algebra";
     }
 
@@ -327,6 +641,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               vertical: 15,
                             ),
                           ),
+                          onChanged: _performSearch,
                         ),
                       ),
                     ),
@@ -355,45 +670,69 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     const SizedBox(height: 20),
 
-                    // Recommended Teachers
+                    // Recommended Teachers or Search Results
                     Expanded(
                       flex: 3,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              "Recommended Teacher",
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                      child: _showSearchResults
+                          ? Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
                               ),
-                            ),
-                            const SizedBox(height: 15),
-                            Expanded(
-                              child: ListView(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  _buildTeacherCard(
-                                    name: "Bapak Rofiuddin",
-                                    subject: "HCI Lecturer",
-                                    description: "Desain UI/UX",
-                                    likes: 1581,
+                                  const Text(
+                                    "Search Results",
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
                                   ),
                                   const SizedBox(height: 15),
-                                  _buildTeacherCard(
-                                    name: "Bapak Hamzah",
-                                    subject: "Linear Algebra",
-                                    description: "Kode Pemrograman & Algoritma",
-                                    likes: 1581,
+                                  Expanded(child: _buildSearchResults()),
+                                ],
+                              ),
+                            )
+                          : Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    "Recommended Teacher",
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 15),
+                                  Expanded(
+                                    child: ListView(
+                                      children: [
+                                        _buildTeacherCard(
+                                          name: "Bapak Rofiuddin",
+                                          subject: "HCI Lecturer",
+                                          description: "Desain UI/UX",
+                                          likes: 1581,
+                                        ),
+                                        const SizedBox(height: 15),
+                                        _buildTeacherCard(
+                                          name: "Bapak Hamzah",
+                                          subject: "Linear Algebra",
+                                          description:
+                                              "Kode Pemrograman & Algoritma",
+                                          likes: 1581,
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ],
                               ),
                             ),
-                          ],
-                        ),
-                      ),
                     ),
                   ],
                 ),
@@ -554,19 +893,24 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildCategoryChip(String label) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white, width: 1),
-      ),
-      child: Center(
-        child: Text(
-          label,
-          style: const TextStyle(
-            color: Colors.blue,
-            fontWeight: FontWeight.w500,
+    return GestureDetector(
+      onTap: () {
+        _filterByCategory(label);
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.white, width: 1),
+        ),
+        child: Center(
+          child: Text(
+            label,
+            style: const TextStyle(
+              color: Colors.blue,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ),
       ),
@@ -748,7 +1092,7 @@ class _HomeScreenState extends State<HomeScreen> {
       items: const [
         BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
         BottomNavigationBarItem(icon: Icon(Icons.school), label: 'Akademik'),
-        BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Tugas'),
+        BottomNavigationBarItem(icon: Icon(Icons.lightbulb), label: 'Ideas'),
         BottomNavigationBarItem(
           icon: Icon(Icons.notifications),
           label: 'Notifikasi',
